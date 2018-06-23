@@ -7,7 +7,8 @@ class Places extends PureComponent {
     super(props);
     this.mapDiv = React.createRef();
     this.state = {
-      ready: false
+      mapsLibLoaded: false,
+      tilesLoaded: false
     };
   }
 
@@ -35,7 +36,7 @@ class Places extends PureComponent {
     document.head.appendChild(script);
     script.addEventListener('load', () =>
       this.setState({
-        ready: true
+        mapsLibLoaded: true
       })
     );
   }
@@ -53,6 +54,11 @@ class Places extends PureComponent {
       if (this.state.openedInfoWindow) {
         this.state.openedInfoWindow.close();
       }
+    });
+    map.addListener('tilesloaded', () => {
+      this.setState({
+        tilesLoaded: true
+      });
     });
     const placesService = new google.maps.places.PlacesService(map);
     const radius = 10000;
@@ -92,20 +98,23 @@ class Places extends PureComponent {
   };
 
   componentDidUpdate(prevProps, prevState) {
+    const { center, mapsLibLoaded } = this.state;
     if (
-      (this.state.center !== prevState.center ||
-        this.state.ready !== prevState.ready) &&
-      this.state.ready &&
-      this.state.center
+      (center !== prevState.center ||
+        mapsLibLoaded !== prevState.mapsLibLoaded) &&
+      mapsLibLoaded &&
+      center
     ) {
       this.searchBreweries();
     }
   }
 
   render() {
+    const { tilesLoaded } = this.state;
     return (
       <div>
-        <div>oi</div>
+        <h2>Near Bear - Bear near you</h2>
+        {!tilesLoaded && <span>Please wait, your beer map is loading...</span>}
         <div
           id="mapDiv"
           ref={this.mapDiv}
