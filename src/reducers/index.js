@@ -1,4 +1,9 @@
-const breweries = (state = {}, action) => {
+const breweries = (
+  state = {
+    items: []
+  },
+  action
+) => {
   return state;
 };
 
